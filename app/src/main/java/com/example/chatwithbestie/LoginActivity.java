@@ -1,5 +1,6 @@
 package com.example.chatwithbestie;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
@@ -55,4 +56,11 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
     }
+
+    OnBackPressedCallback callback = new OnBackPressedCallback(true) {
+        @Override
+        public void handleOnBackPressed() {
+            finish();
+        }
+    };
 }

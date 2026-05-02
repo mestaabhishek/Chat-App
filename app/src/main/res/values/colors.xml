@@ -6,4 +6,5 @@
     <color name="transparent">#0000ffff</color>
     <color name="black">#000000</color>
     <color name="pink">#F23B5F</color>
+    <color name="shadowColor">#757575</color>
 </resources>

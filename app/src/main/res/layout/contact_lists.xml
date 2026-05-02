@@ -5,37 +5,78 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/img1"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginStart="2dp"
+        android:layout_weight="0.7"
+        android:padding="5dp"
+        android:scaleType="centerCrop"
+        app:strokeColor="@color/black"
+        app:shapeAppearanceOverlay="@style/CircleImage"
+        android:src="@mipmap/ic_face"
+        app:layout_constraintEnd_toStartOf="@+id/linlayout"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <LinearLayout
         android:id="@+id/linlayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginStart="65dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/img1"
         app:layout_constraintTop_toTopOf="parent">
 
-        <ImageView
-            android:id="@+id/img1"
-            android:layout_width="0dp"
-            android:layout_height="60dp"
-            android:layout_marginTop="16dp"
-            android:layout_weight="1"
-            android:padding="10dp"
-            android:src="@mipmap/ic_face" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/name1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:layout_marginStart="10dp"
+                android:layout_weight="1"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/latestMsg"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="10dp"
+                android:textSize="16sp" />
+        </LinearLayout>
 
         <TextView
-            android:id="@+id/name1"
+            android:id="@+id/latestTime"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:layout_weight="5"
-            android:fontFamily="cursive"
-            android:padding="10dp"
-            android:text="NickName"
-            android:textSize="28sp"
-            android:textStyle="bold" />
+            android:layout_gravity="bottom"
+            android:layout_marginBottom="5dp"
+            android:layout_marginEnd="5dp"
+            android:layout_weight="1" />
 
     </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.8dp"
+        android:background="@color/black"
+        android:layout_marginEnd="15dp"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="5dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linlayout" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

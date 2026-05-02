@@ -6,6 +6,9 @@ public class UserReg {
     Long lastLogin;
     String ProfilePic;
 
+    String mymessage;
+    private Long mytimestamp;
+
     public UserReg() {
     }
 
@@ -71,5 +74,23 @@ public class UserReg {
 
     public void setPhoneNum(String phoneNum) {
         PhoneNum = phoneNum;
+    }
+
+
+    public String getMymessage() {
+        return mymessage;
+    }
+
+    public void setMymessage(String mymessage) {
+        this.mymessage = mymessage;
+    }
+
+
+    public Long getMytimestamp() {
+        return mytimestamp;
+    }
+
+    public void setMytimestamp(Long mytimestamp) {
+        this.mytimestamp = mytimestamp;
     }
 }

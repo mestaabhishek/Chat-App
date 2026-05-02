@@ -1,5 +1,7 @@
 package com.example.chatwithbestie;
 
+import androidx.activity.OnBackPressedCallback;
+import androidx.activity.OnBackPressedDispatcher;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -51,7 +53,7 @@ public class ChatActivity extends AppCompatActivity {
     Button sendpic,cam,gal;
     EditText userMessage;
     RelativeLayout relay;
-    DatabaseReference mChatData, mUserData;
+    DatabaseReference mChatData, mUserData, mLatestChatData;
     String username = "null",mAuth1,frndid,myid,frname,frimg;
     RecyclerView recyclerView;
     RecyclerView.LayoutManager layoutManager;
@@ -94,8 +96,10 @@ public class ChatActivity extends AppCompatActivity {
 
         mChatData = FirebaseDatabase.getInstance().getReference().child("Chats");
         mUserData = FirebaseDatabase.getInstance().getReference().child("USERS").child(frndid);
+        mLatestChatData = FirebaseDatabase.getInstance().getReference().child("LatestChat");
         mUserData.keepSynced(true);
         mChatData.keepSynced(true);
+        mLatestChatData.keepSynced(true);
 
         recyclerView.postDelayed(new Runnable() {
             @Override
@@ -139,13 +143,31 @@ public class ChatActivity extends AppCompatActivity {
         });
 
         mAuth1 = fAuth.getCurrentUser().getUid();
-        //Toast.makeText(ChatActivity.this,"hi"+mAuth1,Toast.LENGTH_LONG).show();
         sendImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (userMessage.getText() != null) {
                     if (!userMessage.getText().toString().equals("") && username != null) {
-                        mChatData.push().setValue(new ModelChat(userMessage.getText().toString(),  mAuth1,frndid, System.currentTimeMillis()));
+                        String message = userMessage.getText().toString();
+                        mChatData.push().setValue(new ModelChat(message, mAuth1, frndid, System.currentTimeMillis()));
+
+                        mLatestChatData.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                if (snapshot.hasChild(myid + frndid)) {
+                                    mLatestChatData.child(myid+frndid).setValue(new ModelChat(message, mAuth1,frndid, System.currentTimeMillis()));
+                                } else if (snapshot.hasChild(frndid + myid)) {
+                                    mLatestChatData.child(frndid+myid).setValue(new ModelChat(message, mAuth1,frndid, System.currentTimeMillis()));
+                                } else {
+                                    mLatestChatData.child(myid+frndid).setValue(new ModelChat(message, mAuth1,frndid, System.currentTimeMillis()));
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError error) {
+
+                            }
+                        });
                         userMessage.setText("");
                         sendpic.setVisibility(View.VISIBLE);
                     }
@@ -155,6 +177,7 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     private void TakePicture() {
+
     }
 
     private void SendPicture() {
@@ -203,6 +226,94 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     private void displayChatMessage() {
+        // 1. Setup Query (Filtering for messages between current user and friend is usually done at the query level for efficiency,
+        // but here we follow your existing logic of filtering inside the adapter)
+        FirebaseRecyclerOptions<ModelChat> options = new FirebaseRecyclerOptions.Builder<ModelChat>()
+                .setQuery(mChatData, ModelChat.class)
+                .build();
+
+        // 2. Initialize Adapter
+        adapter = new FirebaseRecyclerAdapter<ModelChat, ContactViewHolder>(options) {
+            @NonNull
+            @Override
+            public ContactViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
+                View view = LayoutInflater.from(viewGroup.getContext())
+                        .inflate(R.layout.list_msg, viewGroup, false);
+                return new ContactViewHolder(view);
+            }
+
+            @SuppressLint("SetTextI18n")
+            @Override
+            protected void onBindViewHolder(@NonNull final ContactViewHolder holder, int i, @NonNull final ModelChat model) {
+                // Determine if message belongs to this specific conversation
+                boolean isSentByMe = myid.equals(model.getMyid()) && frndid.equals(model.getFrndid());
+                boolean isSentByFrnd = frndid.equals(model.getMyid()) && myid.equals(model.getFrndid());
+
+                if (isSentByMe) {
+                    holder.frndlay.setVisibility(View.GONE);
+                    holder.mylay.setVisibility(View.VISIBLE);
+                    holder.mypiclay.setVisibility(View.GONE); // Hide pic layout if not used
+
+                    if (model.getMymessage() != null) {
+                        holder.mymsg.setText("  "+ model.getMymessage());
+                        holder.mymsgtime.setText(DateFormat.format("hh:mmaa", model.getMytimestamp())+"  ");
+                    }
+                    if(model.getPicture()!=null){
+                        holder.mypiclay.setVisibility(View.VISIBLE);
+                        Picasso.get().load(model.getPicture()).into(holder.mypic);
+                        holder.mypictime.setText((DateFormat.format("hh:mmaa", model.getMytimestamp())));
+                    }
+                } else if (isSentByFrnd) {
+                    holder.mylay.setVisibility(View.GONE);
+                    holder.frndlay.setVisibility(View.VISIBLE);
+
+                    if (model.getMymessage() != null) {
+                        holder.frndmsg.setText(model.getMymessage());
+                        holder.frndmsgtime.setText(DateFormat.format("hh:mmaa", model.getMytimestamp()));
+                    }
+                    if(model.getPicture()!=null){
+                        holder.frndpiclay.setVisibility(View.VISIBLE);
+                        Picasso.get().load(model.getPicture()).into(holder.frndpic);
+                        holder.frndpictime.setText((DateFormat.format("hh:mmaa", model.getMytimestamp())));
+                    }
+                } else {
+                    // Message belongs to a different chat session
+                    holder.mylay.setVisibility(View.GONE);
+                    holder.frndlay.setVisibility(View.GONE);
+                }
+            }
+        };
+
+        // 3. Auto-scroll to bottom when a new message arrives
+        adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+            @Override
+            public void onItemRangeInserted(int positionStart, int itemCount) {
+                super.onItemRangeInserted(positionStart, itemCount);
+                int friendlyMessageCount = adapter.getItemCount();
+                int lastVisiblePosition = ((LinearLayoutManager) recyclerView.getLayoutManager()).findLastCompletelyVisibleItemPosition();
+
+                // If the recycler view is initially being loaded or the
+                // user is at the bottom of the list, scroll to the bottom of the list to show the new message.
+                if (lastVisiblePosition == -1 || (positionStart >= (friendlyMessageCount - 1) && lastVisiblePosition == (positionStart - 1))) {
+                    recyclerView.scrollToPosition(positionStart);
+                }
+            }
+        });
+
+        // 4. Set adapter and start listening
+        recyclerView.setAdapter(adapter);
+        adapter.startListening();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (adapter != null) {
+            adapter.stopListening();
+        }
+    }
+
+    /*private void displayChatMessage() {
         FirebaseRecyclerOptions options = new FirebaseRecyclerOptions.Builder<ModelChat>()
                 .setQuery(mChatData, ModelChat.class)
                 .build();
@@ -221,7 +332,7 @@ public class ChatActivity extends AppCompatActivity {
 
                 if(myid.equals(model.getMyid()) && frndid.equals(model.getFrndid())){
                     holder.frndlay.setVisibility(View.GONE);
-                    holder.frndpiclay.setVisibility(View.GONE);
+//                    holder.frndpiclay.setVisibility(View.GONE);
                     holder.mypiclay.setVisibility(View.GONE);
 
                 if (model.getMymessage() != null) {
@@ -229,22 +340,22 @@ public class ChatActivity extends AppCompatActivity {
                     holder.mymsgtime.setText((DateFormat.format("hh:mmaa", model.getMytimestamp())));
                 }
                 if(model.getPicture()!=null){
-                    holder.mypiclay.setVisibility(View.VISIBLE);
-                    Picasso.get().load(model.getPicture()).into(holder.mypic);
+//                    holder.mypiclay.setVisibility(View.VISIBLE);
+//                    Picasso.get().load(model.getPicture()).into(holder.mypic);
                     holder.mypictime.setText((DateFormat.format("hh:mmaa", model.getMytimestamp())));
                 }
                 } else if (frndid.equals(model.getMyid()) && myid.equals(model.getFrndid())) {
                     holder.mylay.setVisibility(View.GONE);
-                    holder.frndpiclay.setVisibility(View.GONE);
-                    holder.mypiclay.setVisibility(View.GONE);
+//                    holder.frndpiclay.setVisibility(View.GONE);
+//                    holder.mypiclay.setVisibility(View.GONE);
 
                     if(model.getMymessage() != null) {
                         holder.frndmsg.setText(model.getMymessage());
                         holder.frndmsgtime.setText((DateFormat.format("hh:mmaa", model.getMytimestamp())));
                     }
                     if(model.getPicture()!=null){
-                        holder.frndpiclay.setVisibility(View.VISIBLE);
-                        Picasso.get().load(model.getPicture()).into(holder.frndpic);
+//                        holder.frndpiclay.setVisibility(View.VISIBLE);
+//                        Picasso.get().load(model.getPicture()).into(holder.frndpic);
                         holder.frndpictime.setText((DateFormat.format("hh:mmaa", model.getMytimestamp())));
                     }
                 } else {
@@ -258,7 +369,7 @@ public class ChatActivity extends AppCompatActivity {
         adapter.startListening();
         adapter.notifyDataSetChanged();
         recyclerView.setAdapter(adapter);
-    }
+    }*/
 
     public void openNewActivity(View view) {
         Intent intent=new Intent(ChatActivity.this,ProfileActivity.class);
@@ -270,7 +381,7 @@ public class ChatActivity extends AppCompatActivity {
     private void addNotification(){
         NotificationCompat.Builder builder=new NotificationCompat.Builder(this)
                 .setSmallIcon(R.drawable.ic_launcher_foreground)
-                .setContentTitle("Chat With Bestie")
+                .setContentTitle("Chat App")
                 .setContentText("");
     }
 
@@ -305,4 +416,12 @@ public class ChatActivity extends AppCompatActivity {
         };
         listOfMessage.setAdapter(adapter);
     }*/
+
+    OnBackPressedCallback callback = new OnBackPressedCallback(true) {
+        @Override
+        public void handleOnBackPressed() {
+            finish();
+        }
+    };
+
 }
