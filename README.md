@@ -47,8 +47,8 @@ This project is perfect for developers learning Android + Firebase, those buildi
 1. **Clone the repository**
 
    ```bash
-   git clone https://github.com/mestaabhishek/Chat-With-Bestie.git
-   cd Chat-With-Bestie
+   git clone https://github.com/mestaabhishek/Chat-App.git
+   cd Chat-App
    ```
 
 2. **Open in Android Studio**
