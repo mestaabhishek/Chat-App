@@ -32,13 +32,13 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 public class MainActivity extends AppCompatActivity {
-    private EditText name, phone, email, passwd;
-    private Button reg,login,editpic;
-    private DatabaseReference reff,reff1;
+    private EditText name, phone, email, password;
+    private Button register, login, editPicture;
+    private DatabaseReference reff, reff1;
     private FirebaseAuth fAuth;
     UserReg user;
-    String userID,prfPicUrl;
-    private ImageView prfpic;
+    String userID,profilePicUrl;
+    private ImageView profilePicture;
     public Uri imageUri,image;
     private StorageReference fstore;
 
@@ -47,14 +47,14 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        name = findViewById(R.id.nameEnter);
-        phone = findViewById(R.id.phoneNumEnter);
-        email = findViewById(R.id.emailEnter);
-        passwd = findViewById(R.id.passwdEnter);
-        reg = findViewById(R.id.register);
-        login = findViewById(R.id.login);
-        editpic=findViewById(R.id.editicon);
-        prfpic=findViewById(R.id.prfimg);
+        name = findViewById(R.id.nickNameText);
+        phone = findViewById(R.id.mobileNumberText);
+        email = findViewById(R.id.emailText);
+        password = findViewById(R.id.passwordText);
+        register = findViewById(R.id.registerButton);
+        login = findViewById(R.id.loginButton);
+        editPicture = findViewById(R.id.profileImageEditButton);
+        profilePicture = findViewById(R.id.profileImage);
 
         fstore= FirebaseStorage.getInstance().getReference();
         reff = FirebaseDatabase.getInstance().getReference().child("USERS");
@@ -67,30 +67,30 @@ public class MainActivity extends AppCompatActivity {
             finish();
         }
 
-        reg.setOnClickListener(new View.OnClickListener() {
+        register.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                final String name1 = name.getText().toString().trim();
-                final String phno1 = phone.getText().toString().trim();
-                final String email1 = email.getText().toString().trim();
-                final String passwd1 = passwd.getText().toString().trim();
+                final String firebaseName = name.getText().toString().trim();
+                final String firebasePhoneNumber = phone.getText().toString().trim();
+                final String firebaseEmail = email.getText().toString().trim();
+                final String firebasePassword = password.getText().toString().trim();
 
-                if (TextUtils.isEmpty(name1) || TextUtils.isEmpty(phno1) || TextUtils.isEmpty(email1)
-                        || TextUtils.isEmpty(passwd1)) {
+                if (TextUtils.isEmpty(firebaseName) || TextUtils.isEmpty(firebasePhoneNumber) || TextUtils.isEmpty(firebaseEmail)
+                        || TextUtils.isEmpty(firebasePassword)) {
                     Toast.makeText(MainActivity.this, "Enter All the details..", Toast.LENGTH_SHORT).show();
-                } else if(!TextUtils.isEmpty(name1) && !TextUtils.isEmpty(phno1) && !TextUtils.isEmpty(email1)
-                        && !TextUtils.isEmpty(passwd1)){
+                } else if(!TextUtils.isEmpty(firebaseName) && !TextUtils.isEmpty(firebasePhoneNumber) && !TextUtils.isEmpty(firebaseEmail)
+                        && !TextUtils.isEmpty(firebasePassword)){
 
-                    fAuth.createUserWithEmailAndPassword(email1, passwd1).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                    fAuth.createUserWithEmailAndPassword(firebaseEmail, firebasePassword).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                         @Override
                         public void onComplete(@NonNull final Task<AuthResult> task) {
                             if (task.isSuccessful()) {
                                 userID = fAuth.getCurrentUser().getUid();
                                 user.setUserId(userID);
-                                user.setNickName(name1);
-                                user.setPhoneNum(phno1);
-                                user.setEmail(email1);
-                                user.setPassword(passwd1);
+                                user.setNickName(firebaseName);
+                                user.setPhoneNum(firebasePhoneNumber);
+                                user.setEmail(firebaseEmail);
+                                user.setPassword(firebasePassword);
                                 user.setStatus("null");
                                 if(imageUri!=null) {
                                     final ProgressDialog progressDialog = new ProgressDialog(MainActivity.this);
@@ -119,13 +119,15 @@ public class MainActivity extends AppCompatActivity {
                                             progressDialog.setMessage("Uploaded " + (int) progress + "%");
                                         }
                                     });
+                                } else {
+                                    user.setProfilePic("https://firebasestorage.googleapis.com/v0/b/chat-with-bestie.appspot.com/o/ProfileImage%2FScreenshot%202026-05-02%20at%2011.34.25%E2%80%AFPM.png?alt=media&token=f2eb5676-6169-4464-83c1-523c9d701a5b");
                                 }
-                                    user.setProfilePic("null");
                                     reff.child(userID).setValue(user);
                                     updateProfilePic();
                                 Toast.makeText(MainActivity.this,"Successfully Registered..! ",Toast.LENGTH_LONG).show();
                                 Intent i=new Intent(MainActivity.this,SelectContactActivity.class);
                                 startActivity(i);
+                                finish();
                             }else {
                                 Toast.makeText(MainActivity.this, "Error ! " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                             }
@@ -143,13 +145,13 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        editpic.setOnClickListener(new View.OnClickListener() {
+        editPicture.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 choosePicture();
             }
         });
-        prfpic.setOnClickListener(new View.OnClickListener() {
+        profilePicture.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 choosePicture();
@@ -162,8 +164,8 @@ public class MainActivity extends AppCompatActivity {
            @Override
            public void onDataChange(@NonNull DataSnapshot snapshot) {
                if(snapshot.exists()) {
-                   prfPicUrl = snapshot.getValue().toString();
-                   reff.child(userID).child("profilePic").setValue(prfPicUrl);
+                   profilePicUrl = snapshot.getValue().toString();
+                   reff.child(userID).child("profilePic").setValue(profilePicUrl);
                }
            }
 
@@ -186,7 +188,7 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode==1 && resultCode==RESULT_OK && data!=null && data.getData()!=null){
             imageUri=data.getData();
-            prfpic.setImageURI(imageUri);
+            profilePicture.setImageURI(imageUri);
         }
     }
 }

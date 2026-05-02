@@ -19,28 +19,28 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentStart="true"
-            android:layout_marginTop="5dp"
-            android:layout_marginEnd="15dp"
+            android:layout_marginTop="2dp"
+            android:layout_marginBottom="2dp"
+            android:layout_marginEnd="5dp"
             android:layout_marginStart="15dp"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
             android:textColor="#000"
             android:textSize="18sp"
-            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/frnd_msg_time"
             app:layout_constraintTop_toTopOf="parent"/>
 
         <TextView
             android:id="@+id/frnd_msg_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="15dp"
-            android:layout_marginEnd="15dp"
+            android:layout_marginStart="5dp"
+            android:layout_marginEnd="5dp"
             android:textColor="#000"
             android:textSize="12sp"
+            app:layout_constraintStart_toEndOf="@id/frnd_msg"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.99"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/frnd_msg" />
+            app:layout_constraintBottom_toBottomOf="parent"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 
@@ -59,43 +59,45 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
+            android:layout_marginTop="2dp"
+            android:layout_marginBottom="2dp"
+            android:layout_marginEnd="10dp"
             android:layout_marginStart="15dp"
-            android:layout_marginTop="5dp"
-            android:layout_marginEnd="15dp"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
             android:textColor="#000"
-            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/my_msg_time"
             android:textSize="18sp" />
 
         <TextView
             android:id="@+id/my_msg_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/my_msg"
             android:layout_alignParentEnd="true"
-            android:layout_marginEnd="15dp"
-            android:layout_marginStart="15dp"
-            android:textColor="#000"
-            app:layout_constraintEnd_toEndOf="parent"/>
+            android:layout_marginEnd="35dp"
+            android:textColor="#36454F"
+            android:textSize="12sp"
+            android:layout_marginStart="5dp"
+            app:layout_constraintStart_toEndOf="@id/my_msg"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/frndpiclayout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="300dp"
+        android:layout_height="300dp"
         android:layout_marginTop="5dp"
-        android:visibility="invisible"
+        android:visibility="gone"
         android:layout_alignParentStart="true"
-        android:layout_marginEnd="50dp"
+        android:layout_marginEnd="0dp"
         android:backgroundTint="@color/colorAccent"
         android:background="@drawable/message">
 
         <ImageView
             android:id="@+id/frndpic"
-            android:layout_width="350dp"
-            android:layout_height="350dp"
+            android:layout_width="275dp"
+            android:layout_height="275dp"
             android:scaleType="fitXY"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -116,10 +118,10 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/mypiclayout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="300dp"
+        android:layout_height="300dp"
         android:layout_alignParentEnd="true"
-        android:visibility="invisible"
+        android:visibility="gone"
         android:layout_marginStart="40dp"
         android:layout_marginTop="5dp"
         android:background="@drawable/message"
@@ -127,8 +129,8 @@
 
         <ImageView
             android:id="@+id/mypic"
-            android:layout_width="350dp"
-            android:layout_height="350dp"
+            android:layout_width="275dp"
+            android:layout_height="275dp"
             android:scaleType="fitXY"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"

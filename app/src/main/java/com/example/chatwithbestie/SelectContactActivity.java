@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -17,6 +18,9 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -38,7 +42,7 @@ public class SelectContactActivity extends AppCompatActivity {
     RecyclerView.LayoutManager layoutManager;
     FirebaseRecyclerAdapter<UserReg, ContactViewHolder> adapter;
     FirebaseDatabase database;
-    DatabaseReference reference;
+    DatabaseReference reference, latestMsgReff;
     private FirebaseAuth fAuth;
     private FirebaseUser user;
     private StorageReference fstore;
@@ -52,6 +56,7 @@ public class SelectContactActivity extends AppCompatActivity {
 
         database = FirebaseDatabase.getInstance();
         reference = database.getReference().child("USERS");
+        latestMsgReff = database.getReference().child("LatestChat");
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view_contacts);
         recyclerView.setHasFixedSize(true);
         layoutManager = new GridLayoutManager(this, 1);
@@ -63,7 +68,6 @@ public class SelectContactActivity extends AppCompatActivity {
         {
             user = fAuth.getCurrentUser();
             uid=user.getUid();
-            //Toast.makeText(SelectContactActivity.this,"hi"+uid,Toast.LENGTH_LONG).show();
         }
         else {
             fAuth.signOut();
@@ -90,12 +94,47 @@ public class SelectContactActivity extends AppCompatActivity {
             protected void onBindViewHolder(@NonNull final ContactViewHolder holder, int i, @NonNull final UserReg itemCategory) {
 
                 holder.nickName.setText(itemCategory.getNickName());
-                if(itemCategory.getProfilePic()!=null)
-                  Picasso.get().load(itemCategory.getProfilePic()).into(holder.prfimg);
-                else {
-                    Picasso.get().load(R.drawable.ic_baseline_face_24).into(holder.prfimg);
+                String frndId=itemCategory.getUserId();
+
+                latestMsgReff.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        DataSnapshot chatSnapshot = null;
+                        if(snapshot.hasChild(uid+frndId)){
+                            chatSnapshot = snapshot.child(uid+frndId);
+                        } else if (snapshot.hasChild(frndId+uid)) {
+                            chatSnapshot = snapshot.child(frndId+uid);
+                        }
+
+                        if (chatSnapshot != null) {
+                            ModelChat latestChat = chatSnapshot.getValue(ModelChat.class);
+                            if (latestChat != null) {
+                                holder.latestMsg.setText(latestChat.getMymessage());
+                                if (latestChat.getMytimestamp() != null) {
+                                    holder.latestTime.setText(DateFormat.format("hh:mmaa", latestChat.getMytimestamp()));
+                                } else {
+                                    holder.latestTime.setText("");
+                                }
+                            }
+                        } else {
+                            holder.latestMsg.setText("");
+                            holder.latestTime.setText("");
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                });
+
+                if(itemCategory.getProfilePic()!=null) {
+                    Picasso.get().load(itemCategory.getProfilePic()).into(holder.prfimg);
+//                else {
+//                    Picasso.get().load(R.drawable.ic_baseline_face_24).into(holder.prfimg);
+//                }
+//                    holder.prfimg.setImageURI(Uri.parse(itemCategory.getProfilePic()));
                 }
-                //holder.prfimg.setImageURI(Uri.parse(itemCategory.getProfilePic()));
                 final String frndid=itemCategory.getUserId();
 
                 holder.linearLayout.setOnClickListener(new View.OnClickListener() {
@@ -106,7 +145,6 @@ public class SelectContactActivity extends AppCompatActivity {
                         i.putExtra("frndName",itemCategory.getNickName());
                         i.putExtra("frndImg",itemCategory.getProfilePic());
                         startActivity(i);
-                        //Toast.makeText(SelectContactActivity.this,"hi "+frndid,Toast.LENGTH_LONG).show();
                     }
                 });
             }
@@ -136,7 +174,6 @@ public class SelectContactActivity extends AppCompatActivity {
             intent = new Intent(SelectContactActivity.this, ProfileActivity.class);
             intent.putExtra("myid",fAuth.getCurrentUser().getUid());
             startActivity(intent);
-            finish();
         }
         return (super.onOptionsItemSelected(item));
     }

@@ -1,5 +1,6 @@
 package com.example.chatwithbestie;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -290,4 +291,11 @@ public class ProfileActivity extends AppCompatActivity {
             }
         });
     }
+    OnBackPressedCallback callback = new OnBackPressedCallback(true) {
+        @Override
+        public void handleOnBackPressed() {
+            Intent i = new Intent(ProfileActivity.this, SelectContactActivity.class);
+            startActivity(i);
+        }
+    };
 }

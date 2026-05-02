@@ -14,7 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 public class ContactViewHolder extends RecyclerView.ViewHolder {
 
     public TextView nickName;
-    public TextView mymsg,frndmsg,mymsgtime,frndmsgtime,mypictime,frndpictime;
+    public TextView mymsg,frndmsg,mymsgtime,frndmsgtime,mypictime,frndpictime, latestMsg,latestTime;
     public LinearLayout linearLayout;
     public ConstraintLayout frndlay,mylay,frndpiclay,mypiclay;
     public ImageView prfimg,mypic,frndpic;
@@ -38,6 +38,9 @@ public class ContactViewHolder extends RecyclerView.ViewHolder {
         frndmsgtime=itemView.findViewById(R.id.frnd_msg_time);
         frndlay=itemView.findViewById(R.id.frndlayout);
         mylay=itemView.findViewById(R.id.mylayout);
+
+        latestMsg = itemView.findViewById(R.id.latestMsg);
+        latestTime = itemView.findViewById(R.id.latestTime);
 
     }
 
