@@ -1,6 +1,6 @@
-# 📘 Chat-With-Bestie
+# 📘 Chat-App
 
-**Chat-With-Bestie** is a modern, real-time **Android chat application** built with **Firebase** as the backend. The app provides seamless messaging features that let users chat instantly, store messages securely in the cloud, and enjoy a smooth user experience similar to popular chat apps.
+**Chat-App** is a modern, real-time **Android chat application** built with **Firebase** as the backend. The app provides seamless messaging features that let users chat instantly, store messages securely in the cloud, and enjoy a smooth user experience similar to popular chat apps.
 
 This project is perfect for developers learning Android + Firebase, those building chat functionality, or anyone who needs a solid real-time messaging foundation.
 
@@ -137,16 +137,6 @@ mavenCentral()
 
 ---
 
-## 🧪 Testing
-
-You can test using:
-
-✔ JUnit for unit tests
-✔ Espresso for UI tests
-✔ Real devices or emulators
-
----
-
 ## 📝 Contributing
 
 Thank you for considering contributing!
@@ -167,4 +157,4 @@ This project is open-source and free to use.
 
 ## ⭐ Stay in Touch
 
-Made with ❤️ by **mestaabhishek**
+Made with ❤️ by **Abhishek**
