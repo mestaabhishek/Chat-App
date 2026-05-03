@@ -120,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
                                         }
                                     });
                                 } else {
-                                    user.setProfilePic("https://firebasestorage.googleapis.com/v0/b/chat-with-bestie.appspot.com/o/ProfileImage%2FScreenshot%202026-05-02%20at%2011.34.25%E2%80%AFPM.png?alt=media&token=f2eb5676-6169-4464-83c1-523c9d701a5b");
+                                    //user.setProfilePic()
                                 }
                                     reff.child(userID).setValue(user);
                                     updateProfilePic();
